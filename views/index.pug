@@ -1,0 +1,16 @@
+html
+    head
+        title= title
+    style
+        include style.css
+    body
+        h1= message
+        img(src=mainMeme.url)
+        h1="Meme list"
+        div
+            each meme in memes.getMostExpensive()
+                div(class="picture)")
+                   img(src=meme.url)
+                   a(href="meme/" + meme.id style='display: inline') #{meme.name} 
+                   p(style='display: inline') #{meme.price}
+                   
