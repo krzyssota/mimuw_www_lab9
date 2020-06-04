@@ -18,7 +18,7 @@ export class MemeList {
 
     public getMeme(id: number): Meme {
         const ans: Meme = this.list.find((m) => m.getId() === id)
-        if(typeof ans === 'undefined') return null;
+        if(ans === undefined) return null;
         else return ans;
     }
 }

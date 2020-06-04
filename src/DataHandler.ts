@@ -1,11 +1,13 @@
 import { MemeList } from './MemeList';
 import { Meme } from './Meme'
 
+export const mList = new MemeList();
+
 export const mostExpensive = [
-    {'id': 10,
-    'name': 'Gold',
-    'price': 1000,
-    'url': 'https://i.redd.it/h7rplf9jt8y21.png'},
+  {'id': 10,
+  'name': 'Gold',
+  'price': 1000,
+  'url': 'https://i.redd.it/h7rplf9jt8y21.png'},
     {'id': 9,
     'name': 'Platinum',
     'price': 1100,
@@ -15,10 +17,11 @@ export const mostExpensive = [
     'price': 1200,
     'url': 'https://i.imgflip.com/30zz5g.jpg'}
 ]
-export const mList = new MemeList();
+
 mostExpensive.forEach(m => {
   mList.addMeme(new Meme(m.id, m.name, m.price, m.url));
 })
+
 get_meme('10').changePrice(300);
 get_meme('10').changePrice(400);
 get_meme('10').changePrice(500);

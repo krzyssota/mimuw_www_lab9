@@ -15,11 +15,11 @@ router.get('/:memeId(\\d+)', function (req, res): void {
 router.post('/:memeId(\\d+)', function (req, res): void {
     const modifiedMeme: Meme = get_meme(req.params.memeId)
     const priceAny: any = +req.body.price
-    if(!isNaN(priceAny)) {
+    if(!isNaN(priceAny) && modifiedMeme != null) {
       const price: number = priceAny;
       modifiedMeme.changePrice(price)
-      res.render('meme', { meme: modifiedMeme })
     }
+    res.render('meme', { meme: modifiedMeme })
 })
 
 module.exports = router;

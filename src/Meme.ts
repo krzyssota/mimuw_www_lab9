@@ -23,7 +23,7 @@ export class Meme {
     }
 
     public getListing(): number[] {
-        return this.priceListing;
+        return Object.assign([], this.priceListing);
     }
 
     public getListingFromNewest(): number[] {
