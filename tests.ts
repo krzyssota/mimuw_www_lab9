@@ -44,3 +44,30 @@ describe('MemeList class methods', function () {
     });
 
 })
+
+describe('MemeList class methods 2', function () {
+
+    it('return sensible data when when calling get most expensive memes for memeList containing < 3 memes', () => {
+
+        const m1: Meme = new Meme(1, 'a', 1, 'a');
+        const m2: Meme = new Meme(2, 'a', 2, 'a');
+        const mList: MemeList = new MemeList();
+
+        mList.addMeme(m1);
+        mList.addMeme(m2);
+
+        expect(mList.getMostExpensive()).to.eql([m2, m1]);
+    });
+
+})
+
+describe('MemeList class methods 3', function () {
+
+    it('return sensible data when when calling get most expensive memes for empty memeList', () => {
+
+        const mList: MemeList = new MemeList();
+
+        expect(mList.getMostExpensive()).to.eql([]);
+    });
+
+})
