@@ -1,5 +1,9 @@
 import { MemeList } from './MemeList';
 import { Meme } from './Meme'
+import { make_db } from './DatabaseHandler'
+import * as sqlite from 'sqlite3';
+import { ServerResponse } from 'http';
+import { waitForDebugger } from 'inspector';
 
 export const mList = new MemeList();
 
@@ -17,23 +21,24 @@ export const mostExpensive = [
     'price': 1200,
     'url': 'https://i.imgflip.com/30zz5g.jpg'}
 ]
+const db = make_db();
 
-mostExpensive.forEach(m => {
-  mList.addMeme(new Meme(m.id, m.name, m.price, m.url));
+mostExpensive.forEach( async (m) => {
+  try {
+    const meme: Meme = new Meme(m.id, m.name, m.url);
+    meme.addPrice(m.price, 'admin');
+    await mList.addMeme(db, meme);
+  } catch(err) {
+    throw err;
+  }
 })
 
-get_meme('10').changePrice(300);
-get_meme('10').changePrice(400);
-get_meme('10').changePrice(500);
-get_meme('10').changePrice(600);
-get_meme('9').changePrice(200);
-get_meme('9').changePrice(150);
-get_meme('8').changePrice(100);
+export const headerMeme = new Meme(7, 'www', 'https://scontent-waw1-1.xx.fbcdn.net/v/t1.0-9/99064183_2958683650874355_4126039502034567168_n.jpg?_nc_cat=111&_nc_sid=110474&_nc_ohc=Tg_cXzJMqzkAX8eXnIa&_nc_ht=scontent-waw1-1.xx&oh=edfe5f1f3f341cab45805435012023ee&oe=5EEC8DB2')
+headerMeme.addPrice(10, 'admin')
 
-export const headerMeme = new Meme(7, 'www', 10, 'https://scontent-waw1-1.xx.fbcdn.net/v/t1.0-9/99064183_2958683650874355_4126039502034567168_n.jpg?_nc_cat=111&_nc_sid=110474&_nc_ohc=Tg_cXzJMqzkAX8eXnIa&_nc_ht=scontent-waw1-1.xx&oh=edfe5f1f3f341cab45805435012023ee&oe=5EEC8DB2')
-
-export function get_meme (idStr: string): Meme {
+export function get_meme (db: sqlite.Database,idStr: string): Promise<Meme | undefined> {
     const idNum: number = +idStr;
-    if(!isNaN(idNum)) return mList.getMeme(idNum)
-    return null
-  }
+    if(!isNaN(idNum)){
+      return mList.getMeme(db, idNum)
+    }
+}

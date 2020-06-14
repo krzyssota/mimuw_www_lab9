@@ -37,34 +37,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express = require("express");
-var DataHandler_1 = require("../src/DataHandler");
-var router = express.Router();
+var csurf = require("csurf");
 var DatabaseHandler_1 = require("../src/DatabaseHandler");
-router.get('/', function (req, res) {
-    return __awaiter(this, void 0, void 0, function () {
-        var db, _a, _b, _c, _d, err_1;
-        return __generator(this, function (_e) {
-            switch (_e.label) {
-                case 0:
-                    db = DatabaseHandler_1.make_db();
-                    _e.label = 1;
-                case 1:
-                    _e.trys.push([1, 3, , 4]);
-                    _b = (_a = res).render;
-                    _c = ['index'];
-                    _d = { title: 'Meme market', message: 'Hello there!' };
-                    return [4 /*yield*/, DataHandler_1.mList.getMostExpensive(db)];
-                case 2:
-                    _b.apply(_a, _c.concat([(_d.memes = _e.sent(), _d.mainMeme = DataHandler_1.headerMeme, _d)]));
-                    db.close();
-                    return [3 /*break*/, 4];
-                case 3:
-                    err_1 = _e.sent();
-                    db.close();
-                    throw err_1;
-                case 4: return [2 /*return*/];
-            }
-        });
+var router = express.Router();
+var csrfProtection = csurf({ cookie: true });
+router.get('/', csrfProtection, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        res.render('login', { login: req.session.user, csrfToken: req.csrfToken() });
+        return [2 /*return*/];
     });
-});
+}); });
+router.post('/', csrfProtection, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var enteredLogin, enteredPassword, db, err_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                enteredLogin = req.body.login;
+                enteredPassword = req.body.password;
+                db = DatabaseHandler_1.make_db();
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, new Promise(function (resolve, reject) {
+                        var sqlQ = "SELECT password FROM users WHERE login = (?);";
+                        db.all(sqlQ, enteredLogin, function (err, rows) {
+                            if (err) {
+                                console.error('rejectuje select login password');
+                                reject('DB error while select login password');
+                            }
+                            var bcrypt = require('bcryptjs');
+                            var correct = false;
+                            for (var _i = 0, rows_1 = rows; _i < rows_1.length; _i++) {
+                                var row = rows_1[_i];
+                                if (bcrypt.compareSync(enteredPassword, row.password)) {
+                                    resolve();
+                                    correct = true;
+                                }
+                            }
+                            if (!correct)
+                                reject(new Error("Login or password is not correct"));
+                        });
+                    })];
+            case 2:
+                _a.sent();
+                req.session.user = enteredLogin;
+                db.close();
+                res.render('login', { login: req.session.user, csrfToken: req.csrfToken() });
+                return [3 /*break*/, 4];
+            case 3:
+                err_1 = _a.sent();
+                db.close();
+                res.render('login', { csrfToken: req.csrfToken(), error: err_1 });
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 module.exports = router;

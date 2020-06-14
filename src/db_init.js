@@ -36,35 +36,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var express = require("express");
-var DataHandler_1 = require("../src/DataHandler");
-var router = express.Router();
-var DatabaseHandler_1 = require("../src/DatabaseHandler");
-router.get('/', function (req, res) {
+exports.init = void 0;
+var DB = require("./DatabaseHandler");
+var bcrypt = require('bcryptjs');
+function init() {
     return __awaiter(this, void 0, void 0, function () {
-        var db, _a, _b, _c, _d, err_1;
-        return __generator(this, function (_e) {
-            switch (_e.label) {
+        var db, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    db = DatabaseHandler_1.make_db();
-                    _e.label = 1;
+                    db = DB.make_db();
+                    _a.label = 1;
                 case 1:
-                    _e.trys.push([1, 3, , 4]);
-                    _b = (_a = res).render;
-                    _c = ['index'];
-                    _d = { title: 'Meme market', message: 'Hello there!' };
-                    return [4 /*yield*/, DataHandler_1.mList.getMostExpensive(db)];
+                    _a.trys.push([1, 6, , 7]);
+                    return [4 /*yield*/, DB.createMemeTable(db)];
                 case 2:
-                    _b.apply(_a, _c.concat([(_d.memes = _e.sent(), _d.mainMeme = DataHandler_1.headerMeme, _d)]));
-                    db.close();
-                    return [3 /*break*/, 4];
+                    _a.sent();
+                    return [4 /*yield*/, DB.createMemePricesTable(db)];
                 case 3:
-                    err_1 = _e.sent();
+                    _a.sent();
+                    // await new Promise( (resolve,  reject) => { setTimeout(resolve, 100); })
+                    return [4 /*yield*/, DB.createUsersTable(db)];
+                case 4:
+                    // await new Promise( (resolve,  reject) => { setTimeout(resolve, 100); })
+                    _a.sent();
+                    return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            var hashedAdmin = bcrypt.hashSync('admin', 8);
+                            var hashedUser = bcrypt.hashSync('user', 8);
+                            db.run("INSERT OR REPLACE INTO users (login, password) VALUES ('admin' , '" + hashedAdmin + "');", function (err) {
+                                if (err) {
+                                    reject("DB Error while inserting admin");
+                                    return;
+                                }
+                            });
+                            db.run("INSERT OR REPLACE INTO users (login, password) VALUES ('user' , '" + hashedUser + "');", function (err) {
+                                if (err) {
+                                    reject("DB Error while inserting user");
+                                    return;
+                                }
+                                resolve();
+                            });
+                        })];
+                case 5:
+                    _a.sent();
                     db.close();
-                    throw err_1;
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 6:
+                    error_1 = _a.sent();
+                    db.close();
+                    console.error(error_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });
-});
-module.exports = router;
+}
+exports.init = init;
+init();

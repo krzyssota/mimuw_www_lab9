@@ -1,25 +1,44 @@
 import express = require('express');
 import { get_meme } from '../src/DataHandler'
 import { Meme } from '../src/Meme'
+import csurf = require('csurf')
+import { make_db } from '../src/DatabaseHandler'
+
 
 const router = express.Router();
+const csrfProtection = csurf({cookie: true});
 
-router.get('/:memeId(\\d+)', function (req, res): void {
-    const clickedMeme: Meme = get_meme(req.params.memeId)
-    if(!clickedMeme) {
-      throw 404;
-    }
-    res.render('meme', { meme: clickedMeme })
+router.get('/:memeId(\\d+)', csrfProtection, async function (req, res) {
+  const db = make_db();
+  try {
+    const clickedMeme: Meme = await get_meme(db, req.params.memeId)
+    db.close();
+    res.render('meme', { meme: clickedMeme, csrfToken: req.csrfToken() })
+  } catch(err) {
+    db.close();
+    throw err;
+  }
 })
 
-router.post('/:memeId(\\d+)', function (req, res): void {
-    const modifiedMeme: Meme = get_meme(req.params.memeId)
+router.post('/:memeId(\\d+)', csrfProtection, async function (req, res) {
+  if(!req.session.user) {
+    res.redirect('/meme' + req.path);
+    return;
+  }
+  const db = make_db();
+  try {
+    const modifiedMeme: Meme = await get_meme(db, req.params.memeId)
     const priceAny: any = +req.body.price
-    if(!isNaN(priceAny) && modifiedMeme != null) {
+    if(!isNaN(priceAny)) {
       const price: number = priceAny;
-      modifiedMeme.changePrice(price)
+      await modifiedMeme.changePrice(db, price, req.session.user)
     }
-    res.render('meme', { meme: modifiedMeme })
+    db.close();
+    res.render('meme', { meme: modifiedMeme, csrfToken: req.csrfToken() })
+  } catch (err) {
+    db.close();
+    throw err;
+  }
 })
 
 module.exports = router;
