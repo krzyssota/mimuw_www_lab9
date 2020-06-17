@@ -38,7 +38,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.init = void 0;
 var DB = require("./DatabaseHandler");
-var bcrypt = require('bcryptjs');
+// import bcrypt from 'bcryptjs';
+var bcrypt = require("bcryptjs");
+// const bcrypt = require('bcryptjs')
 function init() {
     return __awaiter(this, void 0, void 0, function () {
         var db, error_1;

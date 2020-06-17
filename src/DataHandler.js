@@ -75,13 +75,6 @@ exports.mostExpensive.forEach(function (m) { return __awaiter(void 0, void 0, vo
         }
     });
 }); });
-/* get_meme('10').changePrice(300);
-get_meme('10').changePrice(400);
-get_meme('10').changePrice(500);
-get_meme('10').changePrice(600);
-get_meme('9').changePrice(200);
-get_meme('9').changePrice(150);
-get_meme('8').changePrice(100); */
 exports.headerMeme = new Meme_1.Meme(7, 'www', 'https://scontent-waw1-1.xx.fbcdn.net/v/t1.0-9/99064183_2958683650874355_4126039502034567168_n.jpg?_nc_cat=111&_nc_sid=110474&_nc_ohc=Tg_cXzJMqzkAX8eXnIa&_nc_ht=scontent-waw1-1.xx&oh=edfe5f1f3f341cab45805435012023ee&oe=5EEC8DB2');
 exports.headerMeme.addPrice(10, 'admin');
 function get_meme(db, idStr) {
@@ -91,33 +84,3 @@ function get_meme(db, idStr) {
     }
 }
 exports.get_meme = get_meme;
-function f() {
-    return __awaiter(this, void 0, void 0, function () {
-        var m, clickedMeme;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    m = new Meme_1.Meme(101, 'a', 'a');
-                    m.addPrice(1, 'admin');
-                    m.save_to_db(db).then(function () {
-                        console.log('jestem w then');
-                        db.all("SELECT id, name, url FROM memes WHERE id == '101';", function (err, row) {
-                            if (err) {
-                                console.error('DB error while selecting Meme');
-                            }
-                            console.log('row = ' + row[0] + ' ' + row[1]);
-                        });
-                    })["catch"](function () { console.error('errrror'); });
-                    return [4 /*yield*/, exports.mList.getMeme(db, 8)];
-                case 1:
-                    clickedMeme = _a.sent();
-                    if (!clickedMeme) {
-                        console.error('nie znaleziono memsa dlaczego');
-                    }
-                    console.log('mems: ' + clickedMeme);
-                    return [2 /*return*/];
-            }
-        });
-    });
-}
-// f();

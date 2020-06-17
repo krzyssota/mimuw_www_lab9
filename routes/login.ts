@@ -1,6 +1,7 @@
 import express = require('express');
 import csurf = require('csurf')
 import { make_db } from '../src/DatabaseHandler'
+import * as bcrypt from 'bcryptjs';
 
 const router = express.Router();
 const csrfProtection = csurf({cookie: true});
@@ -22,7 +23,6 @@ router.post('/', csrfProtection, async (req, res) => {
                     console.error('rejectuje select login password')
                     reject('DB error while select login password');
                 }
-                const bcrypt = require('bcryptjs');
                 let correct = false;
                 for(const row of rows) {
                     if(bcrypt.compareSync(enteredPassword, row.password)) {
@@ -34,11 +34,11 @@ router.post('/', csrfProtection, async (req, res) => {
             })
         })
         req.session.user = enteredLogin;
-        db.close();
         res.render('login', {login: req.session.user, csrfToken: req.csrfToken()});
     } catch(err) {
-        db.close();
         res.render('login', {csrfToken: req.csrfToken(), error: err});
+    } finally {
+        db.close();
     }
 });
 

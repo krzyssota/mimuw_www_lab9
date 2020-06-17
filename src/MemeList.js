@@ -81,7 +81,6 @@ var MemeList = /** @class */ (function () {
                             _i++;
                             return [3 /*break*/, 1];
                         case 6:
-                            // console.log('zwracam tablice rozmiary ' +best3.length);
                             resolve(best3);
                             return [2 /*return*/];
                     }
@@ -92,7 +91,8 @@ var MemeList = /** @class */ (function () {
     MemeList.prototype.getMeme = function (db, id) {
         return new Promise(function (resolve, reject) {
             var meme;
-            db.all("SELECT id, name, url FROM memes WHERE id == '" + id + "';", function (err, rows) {
+            // no sql injection because id is a number
+            db.all("SELECT id, name, url FROM memes WHERE id == ?;", [id], function (err, rows) {
                 if (err) {
                     console.error('rejectuje selecting meme');
                     reject('DB error while selecting Meme');
@@ -100,9 +100,8 @@ var MemeList = /** @class */ (function () {
                 for (var _i = 0, rows_2 = rows; _i < rows_2.length; _i++) {
                     var row = rows_2[_i];
                     meme = new Meme_1.Meme(row.id, row.name, row.url);
-                    // console.log('podczas seleta szczegoly ' + row.id + ' ' + row.name)
                 }
-                db.all("SELECT price_id, meme_id, price, price_author FROM memes_prices WHERE meme_id = '" + id + "' ORDER BY price_id;", function (err, rows) {
+                db.all("SELECT price_id, meme_id, price, price_author FROM memes_prices WHERE meme_id = ? ORDER BY price_id;", [id], function (err, rows) {
                     if (err) {
                         console.error('rejectuje select cena');
                         reject('DB error while selecting prices');
@@ -110,7 +109,6 @@ var MemeList = /** @class */ (function () {
                     for (var _i = 0, rows_3 = rows; _i < rows_3.length; _i++) {
                         var row = rows_3[_i];
                         meme.addPrice(row.price, row.price_author);
-                        // console.log(i + ' podczas selecta cena ' + row.price + ' ' + row.price_author)
                     }
                     resolve(meme);
                 });

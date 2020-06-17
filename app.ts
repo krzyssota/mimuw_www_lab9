@@ -1,7 +1,7 @@
 import express = require('express');
-import indexRouter = require('./routes/index');
-import memeRouter = require('./routes/meme');
-import loginRouter = require('./routes/login');
+const indexRouter = require('./routes/index');
+const memeRouter = require('./routes/meme');
+const loginRouter = require('./routes/login');
 import path = require('path');
 
 import csurf = require('csurf');

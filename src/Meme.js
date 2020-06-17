@@ -54,7 +54,7 @@ var Meme = /** @class */ (function () {
     Meme.prototype.changePrice = function (db, newPrice, author) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            var sqlQ = "BEGIN TRANSACTION;\n                            INSERT OR ROLLBACK INTO memes_prices (price_id, meme_id, price, price_author)\n                            VALUES ((\n                                SELECT MAX(price_id)\n                                FROM memes_prices AS p\n                                WHERE p.meme_id = " + _this.id + "\n                            ) + 1, " + _this.id + ", '" + escape(newPrice.toString()) + "', '" + escape(author.toString()) + "');\n                        COMMIT;";
+            var sqlQ = "BEGIN TRANSACTION;\n                            INSERT OR ROLLBACK INTO memes_prices (price_id, meme_id, price, price_author)\n                            VALUES ((\n                                SELECT MAX(price_id)\n                                FROM memes_prices AS p\n                                WHERE p.meme_id = " + _this.id + "\n                            ) + 1, " + _this.id + ", '" + escape(newPrice.toString()) + "', '" + escape(author) + "');\n                        COMMIT;";
             db.exec(sqlQ, function (err) { return __awaiter(_this, void 0, void 0, function () {
                 var sqliteBusyErrno;
                 var _this = this;
@@ -92,54 +92,6 @@ var Meme = /** @class */ (function () {
             }); });
         });
     };
-    /*  public changePrice(db: sqlite.Database ,newPrice: number, author: string): Promise<void> {
-         return new Promise((resolve, reject) => {
-             const beginT = `BEGIN TRANSACTION;`
-             const insertQ = `INSERT OR ROLLBACK INTO memes_prices (price_id, meme_id, price, price_author)
-                             VALUES ((
-                                 SELECT MAX(price_id)
-                                 FROM memes_prices AS p
-                                 WHERE p.meme_id = ${this.id}
-                             ) + 1, ${this.id}, ${escape(newPrice.toString())}, '${escape(author.toString())}');`;
-             const commitT = `COMMIT;`
-             db.run(beginT, async (err) => {
-                 if(err) {
-                     const sqliteBusyErrno: number = 5;
-                     if(err.errno === sqliteBusyErrno) { // try for the second time
-                         await new Promise(r => setTimeout(r, 100));
-                         db.exec(beginT, async (err2) => {
-                             if(err2) {
-                                 reject(new Error('DB error while beginT 2. try'));
-                                 return;
-                             }
-                         })
-                     }
-                 }
-             })
-             db.exec(sqlQ, async (err) => {
-                 if(err) {
-                     const sqliteBusyErrno: number = 5;
-                     if(err.errno === sqliteBusyErrno) { // try for the second time
-                         await new Promise(r => setTimeout(r, 100));
-                         db.exec(sqlQ, async (err2) => {
-                             if(err2) {
-                                 console.error('rejectuje change price 2. try')
-                                 reject(new Error('DB error while change price 2. try'));
-                             }
-                             this.addPrice(newPrice, author);
-                             resolve();
-                             return;
-                         })
-                     }
-                     console.error('rejectuje change price')
-                     reject( new Error('DB error while change price'));
-                 }
-                 this.addPrice(newPrice, author);
-                 resolve();
-             })
-         })
-     }
-  */
     Meme.prototype.getListing = function () {
         return this.priceListing.slice(0);
     };
@@ -153,14 +105,13 @@ var Meme = /** @class */ (function () {
     Meme.prototype.save_to_db = function (db) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            db.run("INSERT OR REPLACE INTO memes (id, name, url) VALUES ('" + _this.id + "', '" + _this.name + "', '" + _this.url + "');", function (err) {
+            db.run("INSERT OR REPLACE INTO memes (id, name, url) VALUES (?, ?, ?);", [_this.id, _this.name, _this.url], function (err) {
                 if (err) {
                     reject("DB Error while inserting into memes");
                     return;
                 }
             });
-            // console.log('probuje dodac cene ' + this.currectPriceId + ', ' + this.id + ', ' + this.priceListing[0][0] + ', ' + this.priceListing[0][1])
-            db.run("INSERT OR REPLACE INTO memes_prices (price_id, meme_id, price, price_author) VALUES ('" + _this.currectPriceId + "', '" + _this.id + "', '" + _this.priceListing[0][0] + "', '" + _this.priceListing[0][1] + "');", function (err) {
+            db.run("INSERT OR REPLACE INTO memes_prices (price_id, meme_id, price, price_author) VALUES (?, ?, ?, ?);", [_this.currectPriceId, _this.id, _this.priceListing[0][0], _this.priceListing[0][1]], function (err) {
                 if (err) {
                     reject("DB Error while inserting into memes_prices");
                     return;

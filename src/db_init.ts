@@ -1,6 +1,8 @@
 import * as DB from './DatabaseHandler'
 import { secretString } from '../app'
-const bcrypt = require('bcryptjs');
+// import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
+// const bcrypt = require('bcryptjs')
 
 
 export async function init() {

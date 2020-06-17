@@ -4,7 +4,6 @@ import { Meme } from '../src/Meme'
 import csurf = require('csurf')
 import { make_db } from '../src/DatabaseHandler'
 
-
 const router = express.Router();
 const csrfProtection = csurf({cookie: true});
 
@@ -12,32 +11,33 @@ router.get('/:memeId(\\d+)', csrfProtection, async function (req, res) {
   const db = make_db();
   try {
     const clickedMeme: Meme = await get_meme(db, req.params.memeId)
-    db.close();
-    res.render('meme', { meme: clickedMeme, csrfToken: req.csrfToken() })
+    console.log('user ' + req.session.user)
+    if(req.session.user) res.render('meme', { meme: clickedMeme, login: req.session.user, csrfToken: req.csrfToken() })
+    else  res.render('meme', { meme: clickedMeme, csrfToken: req.csrfToken() })
   } catch(err) {
-    db.close();
     throw err;
+  } finally {
+    db.close()
   }
 })
 
 router.post('/:memeId(\\d+)', csrfProtection, async function (req, res) {
-  if(!req.session.user) {
+  const priceAny: any = +req.body.price
+  if(!req.session.user || isNaN(priceAny)) {
     res.redirect('/meme' + req.path);
     return;
   }
   const db = make_db();
   try {
     const modifiedMeme: Meme = await get_meme(db, req.params.memeId)
-    const priceAny: any = +req.body.price
-    if(!isNaN(priceAny)) {
-      const price: number = priceAny;
-      await modifiedMeme.changePrice(db, price, req.session.user)
-    }
-    db.close();
-    res.render('meme', { meme: modifiedMeme, csrfToken: req.csrfToken() })
+    const price: number = priceAny;
+    await modifiedMeme.changePrice(db, price, req.session.user)
+    res.render('meme', { meme: modifiedMeme, login: req.session.user, csrfToken: req.csrfToken() })
   } catch (err) {
-    db.close();
     throw err;
+  } finally {
+    db.close();
+
   }
 })
 

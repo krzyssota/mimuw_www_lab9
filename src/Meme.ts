@@ -33,7 +33,7 @@ export class Meme {
                                 WHERE p.meme_id = ${this.id}
                             ) + 1, ${this.id}, '${escape(newPrice.toString())}', '${escape(author)}');
                         COMMIT;`
-            db.exec(sqlQ, async (err) => {
+            db.exec(sqlQ, async (err: NodeJS.ErrnoException) => {
                 if(err) {
                     const sqliteBusyErrno: number = 5;
                     if(err.errno === sqliteBusyErrno) { // try for the second time

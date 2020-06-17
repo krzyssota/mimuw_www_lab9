@@ -51,62 +51,57 @@ router.get('/:memeId(\\d+)', csrfProtection, function (req, res) {
                     db = DatabaseHandler_1.make_db();
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, DataHandler_1.get_meme(db, req.params.memeId)
-                        // await new Promise(r => setTimeout(r, 50)); // todo why doesnt it wait
-                    ];
+                    _a.trys.push([1, 3, 4, 5]);
+                    return [4 /*yield*/, DataHandler_1.get_meme(db, req.params.memeId)];
                 case 2:
                     clickedMeme = _a.sent();
-                    // await new Promise(r => setTimeout(r, 50)); // todo why doesnt it wait
-                    db.close();
-                    res.render('meme', { meme: clickedMeme, csrfToken: req.csrfToken() });
-                    return [3 /*break*/, 4];
+                    console.log('user ' + req.session.user);
+                    if (req.session.user)
+                        res.render('meme', { meme: clickedMeme, login: req.session.user, csrfToken: req.csrfToken() });
+                    else
+                        res.render('meme', { meme: clickedMeme, csrfToken: req.csrfToken() });
+                    return [3 /*break*/, 5];
                 case 3:
                     err_1 = _a.sent();
-                    db.close();
                     throw err_1;
-                case 4: return [2 /*return*/];
+                case 4:
+                    db.close();
+                    return [7 /*endfinally*/];
+                case 5: return [2 /*return*/];
             }
         });
     });
 });
 router.post('/:memeId(\\d+)', csrfProtection, function (req, res) {
     return __awaiter(this, void 0, void 0, function () {
-        var db, modifiedMeme, priceAny, price, err_2;
+        var priceAny, db, modifiedMeme, price, err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!req.session.user) {
-                        // res.render('meme', { meme: modifiedMeme, csrfToken: req.csrfToken() })
+                    priceAny = +req.body.price;
+                    if (!req.session.user || isNaN(priceAny)) {
                         res.redirect('/meme' + req.path);
                         return [2 /*return*/];
                     }
                     db = DatabaseHandler_1.make_db();
                     _a.label = 1;
                 case 1:
-                    _a.trys.push([1, 5, , 6]);
-                    return [4 /*yield*/, DataHandler_1.get_meme(db, req.params.memeId)
-                        // await new Promise(r => setTimeout(r, 500)); // resolve był w złym miejscu
-                    ];
+                    _a.trys.push([1, 4, 5, 6]);
+                    return [4 /*yield*/, DataHandler_1.get_meme(db, req.params.memeId)];
                 case 2:
                     modifiedMeme = _a.sent();
-                    priceAny = +req.body.price;
-                    if (!!isNaN(priceAny)) return [3 /*break*/, 4];
                     price = priceAny;
-                    return [4 /*yield*/, modifiedMeme.changePrice(db, price, req.session.user)
-                        // await new Promise(r => setTimeout(r, 500)); // todo why doesnt it wait
-                    ];
+                    return [4 /*yield*/, modifiedMeme.changePrice(db, price, req.session.user)];
                 case 3:
                     _a.sent();
-                    _a.label = 4;
-                case 4:
-                    db.close();
                     res.render('meme', { meme: modifiedMeme, csrfToken: req.csrfToken() });
                     return [3 /*break*/, 6];
-                case 5:
+                case 4:
                     err_2 = _a.sent();
-                    db.close();
                     throw err_2;
+                case 5:
+                    db.close();
+                    return [7 /*endfinally*/];
                 case 6: return [2 /*return*/];
             }
         });
